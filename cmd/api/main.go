@@ -12,6 +12,7 @@ import (
 	"time"
 
 	_ "github.com/lib/pq"
+	"greenlight.ilx.net/internal/data"
 )
 
 const version = "1.0.0"
@@ -30,6 +31,7 @@ type config struct {
 type application struct {
 	config config
 	logger *slog.Logger
+	models data.Models
 }
 
 func main() {
@@ -48,11 +50,6 @@ func main() {
 	logger := slog.New(slog.NewTextHandler(os.Stdout, nil))
 	infoLog := log.New(os.Stdout, "INFO\t", log.Ltime|log.Lshortfile)
 
-	app := &application{
-		config: cfg,
-		logger: logger,
-	}
-
 	db, err := openDB(cfg.db.dsn)
 	if err != nil {
 		logger.Error(err.Error())
@@ -61,6 +58,14 @@ func main() {
 
 	defer db.Close()
 	infoLog.Println("database connection pool established")
+
+	models := data.NewModels(db)
+
+	app := &application{
+		config: cfg,
+		logger: logger,
+		models: models,
+	}
 
 	srv := http.Server{
 		Addr:         fmt.Sprintf(":%d", cfg.port),

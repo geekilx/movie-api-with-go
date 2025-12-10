@@ -18,6 +18,7 @@ func (app *application) readIdParam(w http.ResponseWriter, r *http.Request) (int
 
 	params := httprouter.ParamsFromContext(r.Context())
 
+	//Converting into integer
 	id, err := strconv.ParseInt(params.ByName("id"), 10, 64)
 	if err != nil || id < 1 {
 		return 0, err
@@ -49,12 +50,15 @@ func (app *application) writeJSON(w http.ResponseWriter, r *http.Request, status
 
 func (app *application) readJSON(w http.ResponseWriter, r *http.Request, dst any) error {
 	maxBytes := 1_048_576
+
 	// Limiting the size of parsing json in order to keep program safe from malicius attacks
 	r.Body = http.MaxBytesReader(w, r.Body, int64(maxBytes))
 	dec := json.NewDecoder(r.Body)
+
 	// Limiting the program not to accept any other fields except what our struct needs
 	dec.DisallowUnknownFields()
 	err := dec.Decode(dst)
+
 	if err != nil {
 		var syntaxError *json.SyntaxError
 		var unmarshalTypeError *json.UnmarshalTypeError
