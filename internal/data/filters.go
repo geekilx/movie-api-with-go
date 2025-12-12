@@ -13,6 +13,14 @@ type Filters struct {
 	SortSafeList []string
 }
 
+type Metadata struct {
+	CurrentPage  int `json:"current_page"`
+	PageSize     int `json:"page_size"`
+	FirstPage    int `json:"first_page"`
+	LastPage     int `json:"last_page"`
+	TotalRecords int `json:"total_records"`
+}
+
 func (f Filters) sortCoulmn() string {
 	for _, safeValue := range f.SortSafeList {
 		if f.Sort == safeValue {
@@ -42,4 +50,19 @@ func (f Filters) Limit() int {
 
 func (f Filters) Offset() int {
 	return (f.Page - 1) * f.PageSize
+}
+
+func CalculateMetadata(totalrecords, page, pageSize int) Metadata {
+	if totalrecords == 0 {
+		return Metadata{}
+	}
+
+	return Metadata{
+		PageSize:     pageSize,
+		CurrentPage:  page,
+		FirstPage:    1,
+		LastPage:     (totalrecords + pageSize - 1) / pageSize,
+		TotalRecords: totalrecords,
+	}
+
 }
