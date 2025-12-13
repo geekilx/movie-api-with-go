@@ -4,10 +4,8 @@ import (
 	"context"
 	"database/sql"
 	"flag"
-	"fmt"
 	"log"
 	"log/slog"
-	"net/http"
 	"os"
 	"time"
 
@@ -67,18 +65,11 @@ func main() {
 		models: models,
 	}
 
-	srv := http.Server{
-		Addr:         fmt.Sprintf(":%d", cfg.port),
-		Handler:      app.route(),
-		IdleTimeout:  time.Minute,
-		ReadTimeout:  5 * time.Second,
-		WriteTimeout: 10 * time.Second,
-		ErrorLog:     slog.NewLogLogger(logger.Handler(), slog.LevelError),
+	err = app.serve()
+	if err != nil {
+		logger.Error(err.Error())
+		os.Exit(1)
 	}
-
-	infoLog.Printf("Starting server on :%d, enviorment: %s", cfg.port, cfg.env)
-
-	err = srv.ListenAndServe()
 	logger.Error(err.Error())
 	os.Exit(1)
 
