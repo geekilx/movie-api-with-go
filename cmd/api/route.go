@@ -21,6 +21,6 @@ func (app *application) route() http.Handler {
 	router.HandlerFunc(http.MethodDelete, "/v1/movies/:id", app.deleteMovieHandler)
 	router.HandlerFunc(http.MethodGet, "/v1/movies", app.listMoviesHandler)
 
-	return app.panicRecover(router)
+	return app.panicRecover(app.rateLimit(router))
 
 }
