@@ -1,3 +1,6 @@
+#This is a movie api with user signup/login feature built by go
+
+
 The bin directory will contain our compiled application binaries, ready for deployment
 to a production server.The cmd/api directory will contain the application-specific code for our Greenlight API
 application. This will include the code for running the server, reading and writing HTTP
