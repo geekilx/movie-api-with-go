@@ -169,3 +169,10 @@ func ValidateUser(v *validator.Validator, user *User) {
 	}
 
 }
+
+func ValidateLogin(v *validator.Validator, email, password string) {
+	v.Check(validator.Matches(email, validator.EmailRX), "email", "must be a valid email address")
+	v.Check(password != "", "password", "must be provided")
+	v.Check(len(password) >= 8, "password", "must be at least 8 bytes long")
+	v.Check(len(password) <= 72, "password", "must not be more than 72 bytes long")
+}
