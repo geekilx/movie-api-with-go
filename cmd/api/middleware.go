@@ -151,7 +151,7 @@ func (app *application) requireAuthenticatedUser(next http.HandlerFunc) http.Han
 
 }
 
-func (app *application) requireActivatedUser(next http.HandlerFunc) http.HandlerFunc {
+func (app *application) requireActivatedUse(next http.HandlerFunc) http.HandlerFunc {
 
 	fn := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		user := app.contextGetUser(r)
@@ -166,4 +166,35 @@ func (app *application) requireActivatedUser(next http.HandlerFunc) http.Handler
 
 	return app.requireAuthenticatedUser(fn)
 
+}
+
+func (app *application) requirePermission(code string, next http.HandlerFunc) http.HandlerFunc {
+	fn := func(w http.ResponseWriter, r *http.Request) {
+
+		user := app.contextGetUser(r)
+
+		if data.IsAnonymous(user) {
+			println("anonymous user")
+			app.notPermittedResponse(w, r)
+			return
+		}
+
+		permissions, err := app.models.Permissions.GetAllForUser(user.ID)
+		fmt.Println(permissions)
+		if err != nil {
+			app.serverErrorResponse(w, r, err)
+			return
+		}
+
+		if !permissions.Include(code) {
+			fmt.Println("not permitted")
+			app.notPermittedResponse(w, r)
+			return
+		}
+
+		next.ServeHTTP(w, r)
+
+	}
+
+	return app.requireActivatedUse(fn)
 }
